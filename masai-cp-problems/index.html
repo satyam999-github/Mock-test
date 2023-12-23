@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.css" />
+    <title>Masai Country Finder</title>
+  </head>
+  <body>
+    <div id="sort_filter">
+      <label for="sort">Sort Based On Population</label>
+            <!-- note: don't add onchnage event here -->
+      <select name="sort" id="sort_population" >
+        <option value ="">--sort by population--</option>
+        <option value="asc">Low To High</option>
+        <option value="desc">High To Low</option>
+      </select>
+
+      <label for="filter">Filter for Region</label>
+      <!-- note: don't add onchnage event here -->
+      <select name="filter" id="filter_region" >
+        <option value="all">All</option>
+        <option value="Africa">Africa</option>
+        <option value="Americas">America</option>
+        <option value="Asia">Asia</option>
+        <option value="Europe">Europe</option>
+        <option value="Oceania">Oceania</option>
+      </select>
+    </div>
+    <div id="all_countries"></div>
+    <script src="./src/index.js"></script>
+  </body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 1em;
+            text-align: center;
+        }
+
+        main {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            overflow: hidden;
+            width: 300px;
+        }
+
+        .card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        select {
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Country Finder</h1>
+        <label for="region">Filter by Region:</label>
+        <select id="region" onchange="filterCountries()">
+            <option value="all">All</option>
+            <option value="Africa">Africa</option>
+            <option value="America">America</option>
+            <option value="Asia">Asia</option>
+            <option value="Europe">Europe</option>
+            <option value="Oceania">Oceania</option>
+        </select>
+    </header>
+    <main id="countries-container"></main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", fetchCountries);
+
+        async function fetchCountries() {
+            try {
+                const response = await fetch("https://restcountries.com/v3.1/all");
+                const countries = await response.json();
+                displayCountries(countries);
+            } catch (error) {
+                console.error("Error fetching countries:", error);
+            }
+        }
+
+        function displayCountries(countries) {
+            const countriesContainer = document.getElementById("countries-container");
+            countriesContainer.innerHTML = "";
+
+            countries.forEach(country => {
+                const card = document.createElement("div");
+                card.className = "card";
+
+                const flagImage = document.createElement("img");
+                flagImage.src = country.flags[0];
+                flagImage.alt = `${country.name.common} flag`;
+
+                const cardBody = document.createElement("div");
+                cardBody.className = "card-body";
+                cardBody.innerHTML = `
+                    <h3>${country.name.common}</h3>
+                    <p>Population: ${country.population.toLocaleString()}</p>
+                    <p>Region: ${country.region}</p>
+                    <p>Capital: ${country.capital}</p>
+                `;
+
+                card.appendChild(flagImage);
+                card.appendChild(cardBody);
+                countriesContainer.appendChild(card);
+            });
+        }
+
+        function filterCountries() {
+            const regionFilter = document.getElementById("region").value;
+            const filteredCountries = countries.filter(country => {
+                return regionFilter === "all" || country.region === regionFilter;
+            });
+
+            displayCountries(filteredCountries);
+        }
+    </script>
+</body>
+</html>
